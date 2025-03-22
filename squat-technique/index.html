@@ -1,0 +1,126 @@
+<!DOCTYPE html>
+<html lang="en">
+<!-- ... existing head and style sections remain the same ... -->
+
+<body>
+    <!-- ... existing HTML structure remains the same ... -->
+
+    <script>
+        const dropZone = document.getElementById('dropZone');
+        const fileInput = document.getElementById('fileInput');
+        const uploadedVideo = document.getElementById('uploadedVideo');
+        const analyzeBtn = document.getElementById('analyzeBtn');
+
+        // Clear video and reset UI on page load/refresh
+        window.onload = function() {
+            // Reset file input
+            fileInput.value = '';
+            
+            // Clear video source and hide it
+            uploadedVideo.src = '';
+            uploadedVideo.classList.add('hidden');
+            
+            // Show drop zone
+            dropZone.classList.remove('hidden');
+            
+            // Reset analyze button
+            analyzeBtn.disabled = true;
+            analyzeBtn.textContent = 'Analyze Form';
+            
+            // Reset scores
+            document.getElementById('totalScore').textContent = '-';
+            ['shoulders', 'hips', 'knees', 'ankles'].forEach(part => {
+                document.getElementById(`${part}Progress`).style.width = '0%';
+                document.getElementById(`${part}Score`).textContent = 'Score: -/25';
+            });
+            
+            // Clear any stored video URLs
+            if (uploadedVideo.src) {
+                URL.revokeObjectURL(uploadedVideo.src);
+            }
+        };
+
+        // Handle drag and drop
+        dropZone.addEventListener('dragover', (e) => {
+            e.preventDefault();
+            dropZone.style.borderColor = '#007bff';
+        });
+
+        dropZone.addEventListener('dragleave', (e) => {
+            e.preventDefault();
+            dropZone.style.borderColor = '#ccc';
+        });
+
+        dropZone.addEventListener('drop', (e) => {
+            e.preventDefault();
+            dropZone.style.borderColor = '#ccc';
+            handleFile(e.dataTransfer.files[0]);
+        });
+
+        // Handle click to upload
+        dropZone.addEventListener('click', () => {
+            fileInput.click();
+        });
+
+        fileInput.addEventListener('change', (e) => {
+            handleFile(e.target.files[0]);
+        });
+
+        function handleFile(file) {
+            // Clear previous video URL if it exists
+            if (uploadedVideo.src) {
+                URL.revokeObjectURL(uploadedVideo.src);
+            }
+
+            if (file && file.type.startsWith('video/')) {
+                const videoUrl = URL.createObjectURL(file);
+                uploadedVideo.src = videoUrl;
+                uploadedVideo.classList.remove('hidden');
+                dropZone.classList.add('hidden');
+                analyzeBtn.disabled = false;
+                analyzeBtn.textContent = 'Analyze Form';
+            } else {
+                alert('Please upload a valid video file.');
+            }
+        }
+
+        // Handle analysis
+        analyzeBtn.addEventListener('click', async () => {
+            analyzeBtn.disabled = true;
+            analyzeBtn.textContent = 'Analyzing...';
+
+            // Simulate processing delay
+            await new Promise(resolve => setTimeout(resolve, 2000));
+
+            // Example scores (replace with actual analysis results)
+            updateScores({
+                shoulders: 20,
+                hips: 22,
+                knees: 18,
+                ankles: 23
+            });
+
+            analyzeBtn.textContent = 'Analysis Complete';
+        });
+
+        function updateScores(scores) {
+            const totalScore = Object.values(scores).reduce((a, b) => a + b, 0);
+            
+            document.getElementById('totalScore').textContent = totalScore;
+            
+            // Update individual scores
+            Object.entries(scores).forEach(([part, score]) => {
+                document.getElementById(`${part}Progress`).style.width = `${(score/25)*100}%`;
+                document.getElementById(`${part}Score`).textContent = `Score: ${score}/25`;
+            });
+        }
+
+        // Add beforeunload event listener to clean up resources
+        window.addEventListener('beforeunload', function() {
+            if (uploadedVideo.src) {
+                URL.revokeObjectURL(uploadedVideo.src);
+            }
+        });
+    </script>
+</body>
+</html>
