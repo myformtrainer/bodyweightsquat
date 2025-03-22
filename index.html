@@ -15,34 +15,20 @@
             padding: 20px;
             background-color: #f5f5f5;
         }
-
         .container {
             max-width: 1200px;
             margin: 0 auto;
             padding: 20px;
         }
-
         .header {
             text-align: center;
             margin-bottom: 40px;
         }
-
-        .header h1 {
-            color: #333;
-            margin-bottom: 10px;
-        }
-
-        .header p {
-            color: #666;
-            font-size: 1.1em;
-        }
-
         .main-content {
             display: flex;
             gap: 40px;
             flex-wrap: wrap;
         }
-
         .upload-section, .feedback-section {
             flex: 1;
             min-width: 300px;
@@ -51,7 +37,6 @@
             border-radius: 10px;
             box-shadow: 0 2px 10px rgba(0,0,0,0.1);
         }
-
         .upload-box {
             border: 2px dashed #ccc;
             border-radius: 5px;
@@ -61,22 +46,13 @@
             cursor: pointer;
             transition: border-color 0.3s ease;
         }
-
         .upload-box:hover {
             border-color: #007bff;
         }
-
-        .upload-box i {
-            font-size: 48px;
-            color: #666;
-            margin-bottom: 10px;
+        .upload-box.dragover {
+            border-color: #28a745;
+            background-color: rgba(40, 167, 69, 0.1);
         }
-
-        .upload-box p {
-            margin: 0;
-            color: #666;
-        }
-
         .upload-btn {
             background: #007bff;
             color: white;
@@ -85,24 +61,31 @@
             border-radius: 5px;
             cursor: pointer;
             width: 100%;
-            font-size: 1.1em;
-            transition: background-color 0.3s ease;
         }
-
-        .upload-btn:hover {
-            background: #0056b3;
+        .upload-btn:disabled {
+            background: #ccc;
+            cursor: not-allowed;
         }
-
-        .feedback-section h2 {
-            color: #333;
-            margin-bottom: 20px;
+        .video-container {
+            position: relative;
+            margin-top: 20px;
+            width: 100%;
         }
-
-        .score-display {
-            text-align: center;
-            margin-bottom: 30px;
+        #uploadedVideo {
+            width: 100%;
+            max-width: 100%;
+            border-radius: 5px;
         }
-
+        #processedCanvas {
+            position: absolute;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+        }
+        .hidden {
+            display: none;
+        }
         .score-circle {
             width: 150px;
             height: 150px;
@@ -113,26 +96,7 @@
             align-items: center;
             justify-content: center;
             font-size: 2.5em;
-            font-weight: bold;
-            color: #28a745;
         }
-
-        .detailed-feedback {
-            margin-top: 20px;
-        }
-
-        .feedback-item {
-            margin-bottom: 15px;
-            padding: 10px;
-            border-radius: 5px;
-            background: #f8f9fa;
-        }
-
-        .feedback-item h3 {
-            margin: 0 0 10px 0;
-            color: #495057;
-        }
-
         .progress-bar {
             height: 20px;
             background: #e9ecef;
@@ -140,62 +104,11 @@
             overflow: hidden;
             margin-top: 5px;
         }
-
         .progress {
             height: 100%;
             background: #28a745;
             width: 0%;
             transition: width 0.5s ease;
-        }
-
-        #uploadedVideo {
-            width: 100%;
-            max-width: 100%;
-            border-radius: 5px;
-            transform: scaleY(1);
-        }
-
-        #processedCanvas {
-            position: absolute;
-            left: 0;
-            top: 0;
-            width: 100%;
-            height: 100%;
-            transform: scaleY(1);
-        }
-
-        .hidden {
-            display: none;
-        }
-
-        .feedback-details {
-            margin-top: 20px;
-            padding: 15px;
-            background: #f8f9fa;
-            border-radius: 5px;
-        }
-        
-        .error-message {
-            color: #dc3545;
-            padding: 10px;
-            margin: 10px 0;
-            background: #f8d7da;
-            border-radius: 5px;
-        }
-        
-        .success-message {
-            color: #28a745;
-            padding: 10px;
-            margin: 10px 0;
-            background: #d4edda;
-            border-radius: 5px;
-        }
-
-        .video-container {
-            position: relative;
-            margin-top: 20px;
-            width: 100%;
-            transform: rotate(0deg);
         }
     </style>
 </head>
@@ -203,56 +116,58 @@
     <div class="container">
         <div class="header">
             <h1>Squat Form Analyzer</h1>
-            <p>Upload your squat video for instant form analysis and feedback</p>
+            <p>Upload your squat video for instant form analysis</p>
         </div>
 
         <div class="main-content">
             <div class="upload-section">
                 <h2>Upload Video</h2>
                 <div class="upload-box" id="dropZone">
-                    <i>📁</i>
-                    <p>Drag and drop your video here or click to browse</p>
+                    <p>Drag and drop your video here</p>
+                    <p>or</p>
+                    <button onclick="document.getElementById('fileInput').click()" 
+                            style="padding: 10px 20px; background: #007bff; color: white; border: none; border-radius: 5px; cursor: pointer;">
+                        Choose File
+                    </button>
                     <input type="file" id="fileInput" accept="video/*" style="display: none;">
                 </div>
-                <video id="uploadedVideo" controls class="hidden"></video>
+                <div class="video-container">
+                    <video id="uploadedVideo" controls class="hidden"></video>
+                    <canvas id="processedCanvas" class="hidden"></canvas>
+                </div>
                 <button class="upload-btn" id="analyzeBtn" disabled>Analyze Form</button>
             </div>
 
             <div class="feedback-section">
                 <h2>Analysis Results</h2>
-                <div class="score-display">
-                    <div class="score-circle" id="totalScore">-</div>
-                    <p>Overall Score</p>
+                <div class="score-circle" id="totalScore">-</div>
+                <div class="feedback-item">
+                    <h3>Shoulders</h3>
+                    <div class="progress-bar">
+                        <div class="progress" id="shouldersProgress"></div>
+                    </div>
+                    <p id="shouldersScore">Score: -/25</p>
                 </div>
-                <div class="detailed-feedback">
-                    <div class="feedback-item">
-                        <h3>Shoulders</h3>
-                        <div class="progress-bar">
-                            <div class="progress" id="shouldersProgress"></div>
-                        </div>
-                        <p id="shouldersScore">Score: -/25</p>
+                <div class="feedback-item">
+                    <h3>Hips</h3>
+                    <div class="progress-bar">
+                        <div class="progress" id="hipsProgress"></div>
                     </div>
-                    <div class="feedback-item">
-                        <h3>Hips</h3>
-                        <div class="progress-bar">
-                            <div class="progress" id="hipsProgress"></div>
-                        </div>
-                        <p id="hipsScore">Score: -/25</p>
+                    <p id="hipsScore">Score: -/25</p>
+                </div>
+                <div class="feedback-item">
+                    <h3>Knees</h3>
+                    <div class="progress-bar">
+                        <div class="progress" id="kneesProgress"></div>
                     </div>
-                    <div class="feedback-item">
-                        <h3>Knees</h3>
-                        <div class="progress-bar">
-                            <div class="progress" id="kneesProgress"></div>
-                        </div>
-                        <p id="kneesScore">Score: -/25</p>
+                    <p id="kneesScore">Score: -/25</p>
+                </div>
+                <div class="feedback-item">
+                    <h3>Ankles</h3>
+                    <div class="progress-bar">
+                        <div class="progress" id="anklesProgress"></div>
                     </div>
-                    <div class="feedback-item">
-                        <h3>Ankles</h3>
-                        <div class="progress-bar">
-                            <div class="progress" id="anklesProgress"></div>
-                        </div>
-                        <p id="anklesScore">Score: -/25</p>
-                    </div>
+                    <p id="anklesScore">Score: -/25</p>
                 </div>
             </div>
         </div>
@@ -291,8 +206,6 @@
                 ctx.fillStyle = 'black';
                 ctx.fillRect(0, 0, canvas.width, canvas.height);
 
-                ctx.save();
-                
                 if (results.poseLandmarks) {
                     drawLandmarks(ctx, results.poseLandmarks);
                     processedFrames.push({
@@ -300,37 +213,17 @@
                         timestamp: videoElement.currentTime
                     });
                 }
-
-                ctx.restore();
             }
         }
 
         function drawLandmarks(ctx, landmarks) {
-            ctx.strokeStyle = 'white';
-            ctx.lineWidth = 2;
-
-            const keyPoints = {
-                shoulders: {color: '#00ff00', indices: [11, 12]},
-                hips: {color: '#0000ff', indices: [23, 24]},
-                knees: {color: '#ff0000', indices: [25, 26]},
-                ankles: {color: '#00ffff', indices: [27, 28]}
-            };
-
             landmarks.forEach((landmark, index) => {
                 const x = landmark.x * ctx.canvas.width;
                 const y = landmark.y * ctx.canvas.height;
 
-                let color = 'white';
-                for (const [part, data] of Object.entries(keyPoints)) {
-                    if (data.indices.includes(index)) {
-                        color = data.color;
-                        break;
-                    }
-                }
-
                 ctx.beginPath();
                 ctx.arc(x, y, 5, 0, 2 * Math.PI);
-                ctx.fillStyle = color;
+                ctx.fillStyle = 'white';
                 ctx.fill();
             });
         }
@@ -344,106 +237,73 @@
             const canvas = document.getElementById('processedCanvas');
             const analyzeBtn = document.getElementById('analyzeBtn');
 
-            // Reset everything on page load
-            fileInput.value = '';
-            videoElement.src = '';
-            processedFrames = [];
-            videoElement.classList.add('hidden');
-            canvas.classList.add('hidden');
-            dropZone.classList.remove('hidden');
-            analyzeBtn.disabled = true;
-
-            async function processVideo(file) {
-                if (!file) {
-                    return;
-                }
-
-                if (file.size > 100 * 1024 * 1024) { // 100MB limit
-                    alert('File is too large. Please upload a video smaller than 100MB.');
-                    return;
-                }
-
-                if (!file.type.startsWith('video/')) {
-                    alert('Please upload a valid video file.');
-                    return;
-                }
-
-                // Clear previous video
-                if (videoElement.src) {
-                    URL.revokeObjectURL(videoElement.src);
-                }
-
-                const videoUrl = URL.createObjectURL(file);
-                videoElement.src = videoUrl;
-                videoElement.classList.remove('hidden');
-                canvas.classList.remove('hidden');
-                dropZone.classList.add('hidden');
-                analyzeBtn.disabled = false;
-                processedFrames = []; // Reset processed frames
-
-                // Wait for video metadata to load
-                await new Promise((resolve) => {
-                    videoElement.onloadedmetadata = () => {
-                        resolve();
-                    };
-                });
-
-                // Start processing frames when video plays
-                videoElement.addEventListener('play', async () => {
-                    while (!videoElement.paused && !videoElement.ended) {
-                        await pose.send({
-                            image: videoElement
-                        });
-                        await new Promise(r => setTimeout(r, 1000 / 30)); // 30 fps
-                    }
-                });
-            }
-
             // File input handler
             fileInput.addEventListener('change', (e) => {
                 const file = e.target.files[0];
                 if (file) {
-                    processVideo(file);
+                    handleVideoUpload(file);
                 }
-            });
-
-            // Click handler for the drop zone
-            dropZone.addEventListener('click', () => {
-                fileInput.click();
             });
 
             // Drag and drop handlers
             dropZone.addEventListener('dragover', (e) => {
                 e.preventDefault();
-                e.stopPropagation();
                 dropZone.classList.add('dragover');
             });
 
             dropZone.addEventListener('dragleave', (e) => {
                 e.preventDefault();
-                e.stopPropagation();
                 dropZone.classList.remove('dragover');
             });
 
             dropZone.addEventListener('drop', (e) => {
                 e.preventDefault();
-                e.stopPropagation();
                 dropZone.classList.remove('dragover');
                 const file = e.dataTransfer.files[0];
                 if (file) {
-                    processVideo(file);
+                    handleVideoUpload(file);
                 }
             });
+
+            function handleVideoUpload(file) {
+                if (!file.type.startsWith('video/')) {
+                    alert('Please upload a valid video file');
+                    return;
+                }
+
+                // Clear previous video if it exists
+                if (videoElement.src) {
+                    URL.revokeObjectURL(videoElement.src);
+                }
+
+                // Create new video URL and set it
+                const videoURL = URL.createObjectURL(file);
+                videoElement.src = videoURL;
+
+                // Show video and hide upload box
+                videoElement.classList.remove('hidden');
+                dropZone.classList.add('hidden');
+                analyzeBtn.disabled = false;
+
+                // Reset processed frames
+                processedFrames = [];
+
+                // Process video frames when playing
+                videoElement.addEventListener('play', async () => {
+                    while (!videoElement.paused && !videoElement.ended) {
+                        await pose.send({
+                            image: videoElement
+                        });
+                        await new Promise(r => setTimeout(r, 1000 / 30));
+                    }
+                });
+            }
 
             // Analyze button handler
             analyzeBtn.addEventListener('click', async () => {
                 try {
                     analyzeBtn.disabled = true;
                     analyzeBtn.textContent = 'Analyzing...';
-                    
-                    if (processedFrames.length === 0) {
-                        throw new Error('No frames were processed. Please ensure the video plays completely.');
-                    }
                     
                     const result = await compareWithModel(processedFrames);
                     
@@ -457,33 +317,14 @@
                             `Score: ${score.toFixed(1)}/25`;
                     });
                     
-                    const feedback = document.createElement('div');
-                    feedback.className = 'feedback-details';
-                    feedback.innerHTML = `
-                        <h3>Detailed Analysis</h3>
-                        <p>Frames processed: ${processedFrames.length}</p>
-                        <p>Frames analyzed: ${result.framesAnalyzed}</p>
-                        <p>Overall form score: ${result.totalScore.toFixed(1)}/100</p>
-                    `;
-                    
-                    const existingFeedback = document.querySelector('.feedback-details');
-                    if (existingFeedback) {
-                        existingFeedback.remove();
-                    }
-                    document.querySelector('.feedback-section').appendChild(feedback);
-                    
                     analyzeBtn.textContent = 'Analysis Complete';
                 } catch (error) {
                     console.error('Analysis error:', error);
                     analyzeBtn.textContent = 'Analysis Failed';
-                    
-                    const errorDiv = document.createElement('div');
-                    errorDiv.className = 'error-message';
-                    errorDiv.textContent = `Error during analysis: ${error.message}`;
-                    document.querySelector('.feedback-section').appendChild(errorDiv);
+                    alert('Error during analysis. Please try again.');
                 }
             });
         };
     </script>
 </body>
-</html> 
+</html>
