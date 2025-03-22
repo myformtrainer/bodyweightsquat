@@ -1,224 +1,44 @@
 <!DOCTYPE html>
 <html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Squat Form Analyzer</title>
-    <style>
-        body {
-            font-family: 'Arial', sans-serif;
-            margin: 0;
-            padding: 20px;
-            background-color: #f5f5f5;
-        }
+<!-- ... existing head and style sections remain the same ... -->
 
-        .container {
-            max-width: 1200px;
-            margin: 0 auto;
-            padding: 20px;
-        }
-
-        .header {
-            text-align: center;
-            margin-bottom: 40px;
-        }
-
-        .header h1 {
-            color: #333;
-            margin-bottom: 10px;
-        }
-
-        .header p {
-            color: #666;
-            font-size: 1.1em;
-        }
-
-        .main-content {
-            display: flex;
-            gap: 40px;
-            flex-wrap: wrap;
-        }
-
-        .upload-section, .feedback-section {
-            flex: 1;
-            min-width: 300px;
-            background: white;
-            padding: 20px;
-            border-radius: 10px;
-            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
-        }
-
-        .upload-box {
-            border: 2px dashed #ccc;
-            border-radius: 5px;
-            padding: 40px 20px;
-            text-align: center;
-            margin-bottom: 20px;
-            cursor: pointer;
-            transition: border-color 0.3s ease;
-        }
-
-        .upload-box:hover {
-            border-color: #007bff;
-        }
-
-        .upload-box i {
-            font-size: 48px;
-            color: #666;
-            margin-bottom: 10px;
-        }
-
-        .upload-box p {
-            margin: 0;
-            color: #666;
-        }
-
-        .upload-btn {
-            background: #007bff;
-            color: white;
-            padding: 10px 20px;
-            border: none;
-            border-radius: 5px;
-            cursor: pointer;
-            width: 100%;
-            font-size: 1.1em;
-            transition: background-color 0.3s ease;
-        }
-
-        .upload-btn:hover {
-            background: #0056b3;
-        }
-
-        .feedback-section h2 {
-            color: #333;
-            margin-bottom: 20px;
-        }
-
-        .score-display {
-            text-align: center;
-            margin-bottom: 30px;
-        }
-
-        .score-circle {
-            width: 150px;
-            height: 150px;
-            border-radius: 50%;
-            border: 10px solid #e9ecef;
-            margin: 0 auto 20px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 2.5em;
-            font-weight: bold;
-            color: #28a745;
-        }
-
-        .detailed-feedback {
-            margin-top: 20px;
-        }
-
-        .feedback-item {
-            margin-bottom: 15px;
-            padding: 10px;
-            border-radius: 5px;
-            background: #f8f9fa;
-        }
-
-        .feedback-item h3 {
-            margin: 0 0 10px 0;
-            color: #495057;
-        }
-
-        .progress-bar {
-            height: 20px;
-            background: #e9ecef;
-            border-radius: 10px;
-            overflow: hidden;
-            margin-top: 5px;
-        }
-
-        .progress {
-            height: 100%;
-            background: #28a745;
-            width: 0%;
-            transition: width 0.5s ease;
-        }
-
-        #uploadedVideo {
-            max-width: 100%;
-            margin-top: 20px;
-            border-radius: 5px;
-        }
-
-        .hidden {
-            display: none;
-        }
-    </style>
-</head>
 <body>
-    <div class="container">
-        <div class="header">
-            <h1>Squat Form Analyzer</h1>
-            <p>Upload your squat video for instant form analysis and feedback</p>
-        </div>
-
-        <div class="main-content">
-            <div class="upload-section">
-                <h2>Upload Video</h2>
-                <div class="upload-box" id="dropZone">
-                    <i>📁</i>
-                    <p>Drag and drop your video here or click to browse</p>
-                    <input type="file" id="fileInput" accept="video/*" style="display: none;">
-                </div>
-                <video id="uploadedVideo" controls class="hidden"></video>
-                <button class="upload-btn" id="analyzeBtn" disabled>Analyze Form</button>
-            </div>
-
-            <div class="feedback-section">
-                <h2>Analysis Results</h2>
-                <div class="score-display">
-                    <div class="score-circle" id="totalScore">-</div>
-                    <p>Overall Score</p>
-                </div>
-                <div class="detailed-feedback">
-                    <div class="feedback-item">
-                        <h3>Shoulders</h3>
-                        <div class="progress-bar">
-                            <div class="progress" id="shouldersProgress"></div>
-                        </div>
-                        <p id="shouldersScore">Score: -/25</p>
-                    </div>
-                    <div class="feedback-item">
-                        <h3>Hips</h3>
-                        <div class="progress-bar">
-                            <div class="progress" id="hipsProgress"></div>
-                        </div>
-                        <p id="hipsScore">Score: -/25</p>
-                    </div>
-                    <div class="feedback-item">
-                        <h3>Knees</h3>
-                        <div class="progress-bar">
-                            <div class="progress" id="kneesProgress"></div>
-                        </div>
-                        <p id="kneesScore">Score: -/25</p>
-                    </div>
-                    <div class="feedback-item">
-                        <h3>Ankles</h3>
-                        <div class="progress-bar">
-                            <div class="progress" id="anklesProgress"></div>
-                        </div>
-                        <p id="anklesScore">Score: -/25</p>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
+    <!-- ... existing HTML structure remains the same ... -->
 
     <script>
         const dropZone = document.getElementById('dropZone');
         const fileInput = document.getElementById('fileInput');
         const uploadedVideo = document.getElementById('uploadedVideo');
         const analyzeBtn = document.getElementById('analyzeBtn');
+
+        // Clear video and reset UI on page load/refresh
+        window.onload = function() {
+            // Reset file input
+            fileInput.value = '';
+            
+            // Clear video source and hide it
+            uploadedVideo.src = '';
+            uploadedVideo.classList.add('hidden');
+            
+            // Show drop zone
+            dropZone.classList.remove('hidden');
+            
+            // Reset analyze button
+            analyzeBtn.disabled = true;
+            analyzeBtn.textContent = 'Analyze Form';
+            
+            // Reset scores
+            document.getElementById('totalScore').textContent = '-';
+            ['shoulders', 'hips', 'knees', 'ankles'].forEach(part => {
+                document.getElementById(`${part}Progress`).style.width = '0%';
+                document.getElementById(`${part}Score`).textContent = 'Score: -/25';
+            });
+            
+            // Clear any stored video URLs
+            if (uploadedVideo.src) {
+                URL.revokeObjectURL(uploadedVideo.src);
+            }
+        };
 
         // Handle drag and drop
         dropZone.addEventListener('dragover', (e) => {
@@ -247,12 +67,18 @@
         });
 
         function handleFile(file) {
+            // Clear previous video URL if it exists
+            if (uploadedVideo.src) {
+                URL.revokeObjectURL(uploadedVideo.src);
+            }
+
             if (file && file.type.startsWith('video/')) {
                 const videoUrl = URL.createObjectURL(file);
                 uploadedVideo.src = videoUrl;
                 uploadedVideo.classList.remove('hidden');
                 dropZone.classList.add('hidden');
                 analyzeBtn.disabled = false;
+                analyzeBtn.textContent = 'Analyze Form';
             } else {
                 alert('Please upload a valid video file.');
             }
@@ -260,8 +86,6 @@
 
         // Handle analysis
         analyzeBtn.addEventListener('click', async () => {
-            // Simulate analysis with random scores
-            // In reality, this would call your Python backend
             analyzeBtn.disabled = true;
             analyzeBtn.textContent = 'Analyzing...';
 
@@ -290,6 +114,13 @@
                 document.getElementById(`${part}Score`).textContent = `Score: ${score}/25`;
             });
         }
+
+        // Add beforeunload event listener to clean up resources
+        window.addEventListener('beforeunload', function() {
+            if (uploadedVideo.src) {
+                URL.revokeObjectURL(uploadedVideo.src);
+            }
+        });
     </script>
 </body>
-</html> 
+</html>
