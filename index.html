@@ -344,6 +344,7 @@
             const canvas = document.getElementById('processedCanvas');
             const analyzeBtn = document.getElementById('analyzeBtn');
 
+            // Reset everything on page load
             fileInput.value = '';
             videoElement.src = '';
             processedFrames = [];
@@ -357,7 +358,7 @@
                     return;
                 }
 
-                if (file.size > 100 * 1024 * 1024) {
+                if (file.size > 100 * 1024 * 1024) { // 100MB limit
                     alert('File is too large. Please upload a video smaller than 100MB.');
                     return;
                 }
@@ -367,42 +368,82 @@
                     return;
                 }
 
+                // Clear previous video
                 if (videoElement.src) {
                     URL.revokeObjectURL(videoElement.src);
                 }
 
                 const videoUrl = URL.createObjectURL(file);
-                
                 videoElement.src = videoUrl;
                 videoElement.classList.remove('hidden');
                 canvas.classList.remove('hidden');
                 dropZone.classList.add('hidden');
                 analyzeBtn.disabled = false;
-                processedFrames = [];
+                processedFrames = []; // Reset processed frames
 
+                // Wait for video metadata to load
                 await new Promise((resolve) => {
                     videoElement.onloadedmetadata = () => {
                         resolve();
                     };
                 });
 
+                // Start processing frames when video plays
                 videoElement.addEventListener('play', async () => {
                     while (!videoElement.paused && !videoElement.ended) {
                         await pose.send({
                             image: videoElement
                         });
-                        await new Promise(r => setTimeout(r, 1000 / 30));
+                        await new Promise(r => setTimeout(r, 1000 / 30)); // 30 fps
                     }
                 });
             }
 
-            dropZone.onclick = () => fileInput.click();
-            fileInput.onchange = (e) => processVideo(e.target.files[0]);
+            // File input handler
+            fileInput.addEventListener('change', (e) => {
+                const file = e.target.files[0];
+                if (file) {
+                    processVideo(file);
+                }
+            });
 
-            analyzeBtn.onclick = async () => {
+            // Click handler for the drop zone
+            dropZone.addEventListener('click', () => {
+                fileInput.click();
+            });
+
+            // Drag and drop handlers
+            dropZone.addEventListener('dragover', (e) => {
+                e.preventDefault();
+                e.stopPropagation();
+                dropZone.classList.add('dragover');
+            });
+
+            dropZone.addEventListener('dragleave', (e) => {
+                e.preventDefault();
+                e.stopPropagation();
+                dropZone.classList.remove('dragover');
+            });
+
+            dropZone.addEventListener('drop', (e) => {
+                e.preventDefault();
+                e.stopPropagation();
+                dropZone.classList.remove('dragover');
+                const file = e.dataTransfer.files[0];
+                if (file) {
+                    processVideo(file);
+                }
+            });
+
+            // Analyze button handler
+            analyzeBtn.addEventListener('click', async () => {
                 try {
                     analyzeBtn.disabled = true;
                     analyzeBtn.textContent = 'Analyzing...';
+                    
+                    if (processedFrames.length === 0) {
+                        throw new Error('No frames were processed. Please ensure the video plays completely.');
+                    }
                     
                     const result = await compareWithModel(processedFrames);
                     
@@ -420,13 +461,12 @@
                     feedback.className = 'feedback-details';
                     feedback.innerHTML = `
                         <h3>Detailed Analysis</h3>
+                        <p>Frames processed: ${processedFrames.length}</p>
                         <p>Frames analyzed: ${result.framesAnalyzed}</p>
                         <p>Overall form score: ${result.totalScore.toFixed(1)}/100</p>
-                        <div class="success-message">Analysis completed successfully</div>
                     `;
                     
-                    const existingFeedback = 
-                        document.querySelector('.feedback-details');
+                    const existingFeedback = document.querySelector('.feedback-details');
                     if (existingFeedback) {
                         existingFeedback.remove();
                     }
@@ -439,10 +479,10 @@
                     
                     const errorDiv = document.createElement('div');
                     errorDiv.className = 'error-message';
-                    errorDiv.textContent = 'Error during analysis. Please try again.';
+                    errorDiv.textContent = `Error during analysis: ${error.message}`;
                     document.querySelector('.feedback-section').appendChild(errorDiv);
                 }
-            };
+            });
         };
     </script>
 </body>
